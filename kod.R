@@ -14,11 +14,11 @@ access_token_secret <- env.accessTokenSecret
 api_key <- env.apiKey
 api_secret_key <- env.apiSecretKey
 token <- create_token(
-app = "snafon",
-consumer_key = api_key,
-consumer_secret = api_secret_key,
-access_token = access_token,
-access_secret = access_token_secret)
+  app = "snafon",
+  consumer_key = api_key,
+  consumer_secret = api_secret_key,
+  access_token = access_token,
+  access_secret = access_token_secret)
 get_token()
 
 saveRDS(token, "rtweet.rds")
@@ -30,15 +30,15 @@ hashtagsUtisak <- c("#utisak", "#utisaknedelje")
 qHashtagsUtisakOr <- paste(hashtagsUtisak, collapse = " OR ")
 
 utisak_10_tweets <- search_tweets(q = qHashtagsUtisakOr,
-since="2020-05-10",
-n = 3000,
-include_rts = FALSE)
+                                  since="2020-05-10",
+                                  n = 3000,
+                                  include_rts = FALSE)
 
 # isti postupak se ponavlja i za hashtag hitTvit
 hittvit_10_tweets <- search_tweets(q =  "#hittvit",
-type = 'recent',
-n = 3000,
-include_rts = FALSE)
+                                   type = 'recent',
+                                   n = 3000,
+                                   include_rts = FALSE)
 
 saveRDS(utisak_10_tweets, 'data/utisak_may_10_tweets.RData')
 saveRDS(hittvit_10_tweets, 'data/hittvit_may_10_tweets.RData')
@@ -60,8 +60,8 @@ library(dplyr)
 # rad sa grafovima
 # biramo samo relevantne kolone
 utisak10tweets_users <- utisak_10_tweets %>%
-select(screen_name, reply_to_screen_name, mentions_screen_name) %>%
-rename(sender=screen_name, replied_to=reply_to_screen_name, mentioned=mentions_screen_name)
+  select(screen_name, reply_to_screen_name, mentions_screen_name) %>%
+  rename(sender=screen_name, replied_to=reply_to_screen_name, mentioned=mentions_screen_name)
 glimpse(utisak10tweets_users)
 # Neke vrednosti 'replied_to' i 'mentioned' ne postoje, proveravamo koliko ih je takvih:
 length(which(is.na(utisak10tweets_users$replied_to)==TRUE))
@@ -69,7 +69,7 @@ length(which(is.na(utisak10tweets_users$mentioned)))
 # Uzimamo samo tvitove u kojima je neko odgovorio drugom korisniku
 # ili ga spomenuo
 utisak10tweets_users <- utisak10tweets_users %>%
-filter( is.na(replied_to)==FALSE | is.na(mentioned)==FALSE )
+  filter( is.na(replied_to)==FALSE | is.na(mentioned)==FALSE )
 View(utisak10tweets_users)
 nrow(utisak10tweets_users)
 # radimo operaciju unnest za kolonu 'mentioned'
@@ -79,28 +79,28 @@ View(utisak10tweets_users)
 # Pretvaramo utisak10tweets_users u dataframe zbog daljeg rada sa grafovima
 # Pravimo 2 edge liste: jednu za relaciju 'reply_to' drugu za relaciju 'mentioned'
 replied_to_edgelist_utisak <- utisak10tweets_users %>%
-select(-mentioned) %>%              # bez kolone 'mentioned'
-filter(complete.cases(.)) %>%       # iskljucimo redove koji nemaju vrednost, tj. Imaju vrednost NA
-group_by(sender, replied_to) %>%    # redovi se spajaju po vrednostima sender I replied_to
-summarise(weight = n()) %>%         # kolika je velicina svake grupe (veza izmedju kolona sender I replied_to)
-ungroup()
+  select(-mentioned) %>%              # bez kolone 'mentioned'
+  filter(complete.cases(.)) %>%       # iskljucimo redove koji nemaju vrednost, tj. Imaju vrednost NA
+  group_by(sender, replied_to) %>%    # redovi se spajaju po vrednostima sender I replied_to
+  summarise(weight = n()) %>%         # kolika je velicina svake grupe (veza izmedju kolona sender I replied_to)
+  ungroup()
 head(replied_to_edgelist_utisak, n=10)
 # izmedju kojih parova cvorova je komunikacija najveca (sortiramo po velicini grupe tj. weight):
 replied_to_edgelist_utisak %>%
-arrange(desc(weight)) %>%
-head(n=10)
+  arrange(desc(weight)) %>%
+  head(n=10)
 # isto radimo za kolonu 'mentioned'
 mentioned_edgelist_utisak <- utisak10tweets_users %>%
-select(-replied_to) %>%
-filter(complete.cases(.)) %>%
-group_by(sender, mentioned) %>%
-summarise(weight = n()) %>%
-ungroup()
+  select(-replied_to) %>%
+  filter(complete.cases(.)) %>%
+  group_by(sender, mentioned) %>%
+  summarise(weight = n()) %>%
+  ungroup()
 head(mentioned_edgelist_utisak, n=10)
 # gde se najcesce vidi ova veza (sortiranje po vrednosti weight):
 mentioned_edgelist_utisak %>%
-arrange(desc(weight)) %>%
-head(n=10)
+  arrange(desc(weight)) %>%
+  head(n=10)
 # Cvorovi u mrezama su jedinstvene vrednosti za korisnike
 # jedinstvene vrednosti u replied_to edgelist
 reply_to_unique_utisak <- union(replied_to_edgelist_utisak$sender, replied_to_edgelist_utisak$replied_to)
@@ -115,11 +115,11 @@ summary(mentioned_edgelist_utisak$weight)
 # Neke smo vec dobili (utisak_10_tweets)
 glimpse(utisak_10_tweets)
 all_senders_utisak <- union(mentioned_edgelist_utisak$sender,
-replied_to_edgelist_utisak$sender)
+                            replied_to_edgelist_utisak$sender)
 senders_data_utisak <- utisak_10_tweets %>%
-filter(screen_name %in% all_senders_utisak) %>%
-users_data() %>%                          # funkcija paketa rtweet za uzimanje podataka iz dataset-a
-distinct(user_id, .keep_all = TRUE)
+  filter(screen_name %in% all_senders_utisak) %>%
+  users_data() %>%                          # funkcija paketa rtweet za uzimanje podataka iz dataset-a
+  distinct(user_id, .keep_all = TRUE)
 glimpse(senders_data_utisak)
 # Skupljamo podatke za “alters”, tj. korisnike koji su mentioned / replied_to
 # za koje alters nemamo podatke
@@ -137,13 +137,13 @@ alters_data_utisak <- users_data(alters_data_utisak)
 missing_alter_utisak <- setdiff(no_data_alters_utisak, alters_data_utisak$screen_name)
 length(missing_alter_utisak)
 mentioned_edgelist_utisak %>%
-filter(!mentioned %in% missing_alter_utisak) %>%
-rename(ego=sender, alter=mentioned, mention_tie=weight) %>%
-saveRDS(file = "data/mentions_edgelist_#utisak_26-01-2019.RData")
+  filter(!mentioned %in% missing_alter_utisak) %>%
+  rename(ego=sender, alter=mentioned, mention_tie=weight) %>%
+  saveRDS(file = "data/mentions_edgelist_#utisak_26-01-2019.RData")
 replied_to_edgelist_utisak %>%
-filter(!replied_to %in% missing_alter_utisak) %>%
-rename(ego=sender, alter=replied_to, reply_to_tie=weight) %>%
-saveRDS(file = "data/replied_to_edgelist_utisak_#utisak_26-01-2019.RData")
+  filter(!replied_to %in% missing_alter_utisak) %>%
+  rename(ego=sender, alter=replied_to, reply_to_tie=weight) %>%
+  saveRDS(file = "data/replied_to_edgelist_utisak_#utisak_26-01-2019.RData")
 saveRDS(senders_data_utisak, file = "data/ego_data_#utisak_26-01-2019.RData")
 saveRDS(alters_data_utisak, file = "data/alter_data_#utisak_26-01-2019.RData")
 ##
@@ -158,10 +158,10 @@ summary(mention_net_utisak)
 # proveravamo gustinu mreze
 edge_density(mention_net_utisak)
 plot(mention_net_utisak,
-layout = layout_with_lgl(mention_net_utisak),
-edge.arrow.size=0.3,
-vertex.size = 5,
-vertex.label = NA)
+     layout = layout_with_lgl(mention_net_utisak),
+     edge.arrow.size=0.3,
+     vertex.size = 5,
+     vertex.label = NA)
 # dodajemo neke nove vrednosti cvorovima
 # pravimo funkciju get_user_attrs() koja prima:
 # 1) podatke o korisnicima dobijene funkcijom paketa rtweet users_data(),
@@ -169,9 +169,9 @@ vertex.label = NA)
 # funkcija vraca data frame od 4 promenljive (kolone):
 # screen_name, followers_count, friends_count, and statuses_count
 get_user_attrs <- function(twitter_user_data, users_screen_names) {
-twitter_user_data %>%
-filter(screen_name %in% users_screen_names) %>%
-select(screen_name, followers_count, friends_count, statuses_count)
+  twitter_user_data %>%
+    filter(screen_name %in% users_screen_names) %>%
+    select(screen_name, followers_count, friends_count, statuses_count)
 }
 # ucitamo podatke o senders: potrebno za dodavanje atributa cvorovima koji su izvori
 senders_data_utisak <- readRDS("data/ego_data_#utisak_26-01-2019.RData")
@@ -183,8 +183,8 @@ alter_attrs_mentioned_utisak <- get_user_attrs(alters_data_utisak, V(mention_net
 glimpse(alter_attrs_mentioned_utisak)
 # dodeljujemo attribute onima koji su u mrezi 'mentioned'
 node_attrs_mentioned_utisak <- rbind(ego_attrs_mentioned_utisak, alter_attrs_mentioned_utisak) %>% # spoj dataframe-ova
-distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
-arrange(screen_name) # sortiranje prema korisnickom imenu
+  distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
+  arrange(screen_name) # sortiranje prema korisnickom imenu
 head(node_attrs_mentioned_utisak, n=10)
 summary(node_attrs_mentioned_utisak[,-1])
 # attribute koji su vektori postavimo najpre na 0
@@ -192,10 +192,10 @@ V(mention_net_utisak)$followers_cnt <- rep(0, vcount(mention_net_utisak))
 V(mention_net_utisak)$friends_cnt <- rep(0, vcount(mention_net_utisak))
 V(mention_net_utisak)$posts_cnt <- rep(0, vcount(mention_net_utisak))
 for (i in 1:vcount(mention_net_utisak)) {
-index <- which(node_attrs_mentioned_utisak$screen_name == V(mention_net_utisak)$name[i])
-V(mention_net_utisak)$followers_cnt[i] <- node_attrs_mentioned_utisak$followers_count[index]
-V(mention_net_utisak)$friends_cnt[i] <- node_attrs_mentioned_utisak$friends_count[index]
-V(mention_net_utisak)$posts_cnt[i] <- node_attrs_mentioned_utisak$statuses_count[index]
+  index <- which(node_attrs_mentioned_utisak$screen_name == V(mention_net_utisak)$name[i])
+  V(mention_net_utisak)$followers_cnt[i] <- node_attrs_mentioned_utisak$followers_count[index]
+  V(mention_net_utisak)$friends_cnt[i] <- node_attrs_mentioned_utisak$friends_count[index]
+  V(mention_net_utisak)$posts_cnt[i] <- node_attrs_mentioned_utisak$statuses_count[index]
 }
 summary(mention_net_utisak)
 summary(V(mention_net_utisak)$followers_cnt)
@@ -203,17 +203,17 @@ summary(V(mention_net_utisak)$followers_cnt)
 # ona pravi cvorove na grafu tako da su velicinom proprcionalni broju pratilaca korisnika
 source('SNA_custom_functions.R')
 friends_for_color_mentioned_utisak <- attr_based_color_gradient(log1p(V(mention_net_utisak)$friends_cnt),
-c('gold','steelblue3'))
+                                                                c('gold','steelblue3'))
 # vector na osnovu broja pratilaca za racunanje velicine cvora
 followers_for_size_mentioned_utisak <- log1p(V(mention_net_utisak)$followers_cnt)
 # plot
 plot(mention_net_utisak,
-layout = layout_with_lgl(mention_net_utisak),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = followers_for_size_mentioned_utisak,
-vertex.color = friends_for_color_mentioned_utisak,
-main = "Mreza UN na tviteru: boja cvora oznacava broj prijatelja, a velicina broj pratilaca")
+     layout = layout_with_lgl(mention_net_utisak),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = followers_for_size_mentioned_utisak,
+     vertex.color = friends_for_color_mentioned_utisak,
+     main = "Mreza UN na tviteru: boja cvora oznacava broj prijatelja, a velicina broj pratilaca")
 library(visNetwork)
 #
 # VISNETWORK: vizualizacija mreze mentioned za utisak nedelje
@@ -225,7 +225,7 @@ giant_comp_mentioned_utisak_size_mentioned_utisak <- max(m_net_comp_utisak$csize
 giant_comp_mentioned_utisak_index_mentioned_utisak <- which(m_net_comp_utisak$csize == giant_comp_mentioned_utisak_size_mentioned_utisak)
 # izdvajamo najvecu komponentu iz grafa mention_net_utisak
 giant_comp_mentioned_utisak <- induced_subgraph(mention_net_utisak,
-vids = V(mention_net_utisak)[m_net_comp_utisak$membership==giant_comp_mentioned_utisak_index_mentioned_utisak])
+                                                vids = V(mention_net_utisak)[m_net_comp_utisak$membership==giant_comp_mentioned_utisak_index_mentioned_utisak])
 summary(giant_comp_mentioned_utisak)
 is_connected(giant_comp_mentioned_utisak, mode = 'weak')
 # koristimo attribute friends_cnt i followers_cnt i njihove boje i velicine
@@ -233,19 +233,19 @@ gc_colors_mentioned_utisak <- attr_based_color_gradient(log1p(V(giant_comp_menti
 gc_size_mentioned_utisak <- log1p(V(giant_comp_mentioned_utisak)$followers_cnt)
 set.seed(2501)
 plot(giant_comp_mentioned_utisak,
-layout = layout_with_dh(giant_comp_mentioned_utisak),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = gc_size_mentioned_utisak,
-vertex.color = gc_colors_mentioned_utisak,
-main = "Najveca komponenta u mrezi mentioned za Utisak nedelje")
+     layout = layout_with_dh(giant_comp_mentioned_utisak),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = gc_size_mentioned_utisak,
+     vertex.color = gc_colors_mentioned_utisak,
+     main = "Najveca komponenta u mrezi mentioned za Utisak nedelje")
 # vizualizacija grafa
 nodes_df_mentioned_utisak <- data.frame(id=V(giant_comp_mentioned_utisak)$name, stringsAsFactors = FALSE)
 head(nodes_df_mentioned_utisak)
 edges_df_mentioned_utisak <- data.frame(as_edgelist(giant_comp_mentioned_utisak), stringsAsFactors = FALSE)
 colnames(edges_df_mentioned_utisak) <- c('from', 'to')
 visNetwork(nodes = nodes_df_mentioned_utisak, edges = edges_df_mentioned_utisak,
-main="Najveca komponenta mentioned mreze za Utisak nedelje")
+           main="Najveca komponenta mentioned mreze za Utisak nedelje")
 #
 nodes_df_mentioned_utisak$color <- gc_colors_mentioned_utisak
 nodes_df_mentioned_utisak$size <- 12 + gc_size_mentioned_utisak
@@ -257,9 +257,9 @@ edges_df_mentioned_utisak$smooth <- TRUE
 edges_df_mentioned_utisak$arrows <- 'to'
 head(edges_df_mentioned_utisak)
 visNetwork(nodes = nodes_df_mentioned_utisak,
-edges = edges_df_mentioned_utisak,
-main="Najveca komponenta mentioned mreze za Utisak nedelje ",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+           edges = edges_df_mentioned_utisak,
+           main="Najveca komponenta mentioned mreze za Utisak nedelje ",
+           footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 nodes_df_mentioned_utisak$shadow <- FALSE
 nodes_df_mentioned_utisak$title <- nodes_df_mentioned_utisak$id
 nodes_df_mentioned_utisak$borderWidth <- 1.5
@@ -269,8 +269,8 @@ nodes_df_mentioned_utisak$color.border <- "black"
 nodes_df_mentioned_utisak$color.highlight.background <- "orange"
 nodes_df_mentioned_utisak$color.highlight.border <- "darkred"
 visnet <- visNetwork(nodes = nodes_df_mentioned_utisak, edges = edges_df_mentioned_utisak,
-main="Najveca komponenta mentioned mreze za Utisak nedelje",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+                     main="Najveca komponenta mentioned mreze za Utisak nedelje",
+                     footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 visnet
 #
 # MREZE KORISNIKA na osnovu relacije replied_to
@@ -284,10 +284,10 @@ summary(replied_to_net_utisak)
 # proveravamo gustinu mreze
 edge_density(replied_to_net_utisak)
 plot(replied_to_net_utisak,
-layout = layout_with_lgl(replied_to_net_utisak),
-edge.arrow.size=0.3,
-vertex.size = 5,
-vertex.label = NA)
+     layout = layout_with_lgl(replied_to_net_utisak),
+     edge.arrow.size=0.3,
+     vertex.size = 5,
+     vertex.label = NA)
 # dodajemo neke nove vrednosti cvorovima
 # koristimo prethodno napravljenu funkciju get_user_attrs() koja prima:
 # 1) podatke o korisnicima dobijene funkcijom paketa rtweet users_data(),
@@ -304,8 +304,8 @@ alter_attrs_replied_to_utisak <- get_user_attrs(alters_data_utisak, V(replied_to
 glimpse(alter_attrs_replied_to_utisak)
 # dodeljujemo attribute onima koji su u mrezi 'replied_to_net'
 node_attrs_replied_to_utisak <- rbind(ego_attrs_replied_to_utisak, alter_attrs_replied_to_utisak) %>% # spoj dataframe-ova
-distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
-arrange(screen_name) # sortiranje prema korisnickom imenu
+  distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
+  arrange(screen_name) # sortiranje prema korisnickom imenu
 head(node_attrs_replied_to_utisak, n=10)
 summary(node_attrs_replied_to_utisak[,-1])
 # attribute koji su vektori postavimo najpre na 0
@@ -313,10 +313,10 @@ V(replied_to_net_utisak)$followers_cnt <- rep(0, vcount(replied_to_net_utisak))
 V(replied_to_net_utisak)$friends_cnt <- rep(0, vcount(replied_to_net_utisak))
 V(replied_to_net_utisak)$posts_cnt <- rep(0, vcount(replied_to_net_utisak))
 for (i in 1:vcount(replied_to_net_utisak)) {
-index <- which(node_attrs_replied_to_utisak$screen_name == V(replied_to_net_utisak)$name[i])
-V(replied_to_net_utisak)$followers_cnt[i] <- node_attrs_replied_to_utisak$followers_count[index]
-V(replied_to_net_utisak)$friends_cnt[i] <- node_attrs_replied_to_utisak$friends_count[index]
-V(replied_to_net_utisak)$posts_cnt[i] <- node_attrs_replied_to_utisak$statuses_count[index]
+  index <- which(node_attrs_replied_to_utisak$screen_name == V(replied_to_net_utisak)$name[i])
+  V(replied_to_net_utisak)$followers_cnt[i] <- node_attrs_replied_to_utisak$followers_count[index]
+  V(replied_to_net_utisak)$friends_cnt[i] <- node_attrs_replied_to_utisak$friends_count[index]
+  V(replied_to_net_utisak)$posts_cnt[i] <- node_attrs_replied_to_utisak$statuses_count[index]
 }
 summary(replied_to_net_utisak)
 summary(V(replied_to_net_utisak)$followers_cnt)
@@ -324,17 +324,17 @@ summary(V(replied_to_net_utisak)$followers_cnt)
 # ona pravi cvorove na grafu tako da su velicinom proprcionalni broju pratilaca korisnika
 source('SNA_custom_functions.R')
 friends_for_color_replied_to_utisak <- attr_based_color_gradient(log1p(V(replied_to_net_utisak)$friends_cnt),
-c('white','steelblue2'))
+                                                                 c('white','steelblue2'))
 # vektor na osnovu broja pratilaca za racunanje velicine cvora
 followers_for_size_replied_to_utisak <- log1p(V(replied_to_net_utisak)$followers_cnt)
 # plot
 plot(replied_to_net_utisak,
-layout = layout_with_lgl(replied_to_net_utisak),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = followers_for_size_replied_to_utisak,
-vertex.color = friends_for_color_replied_to_utisak,
-main = "Mreza UN na tviteru prema odnosu replied_to: \nboja cvora oznacava broj prijatelja, a velicina broj pratilaca")
+     layout = layout_with_lgl(replied_to_net_utisak),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = followers_for_size_replied_to_utisak,
+     vertex.color = friends_for_color_replied_to_utisak,
+     main = "Mreza UN na tviteru prema odnosu replied_to: \nboja cvora oznacava broj prijatelja, a velicina broj pratilaca")
 #
 # VISNETWORK: vizualizacija mreze replied_to za utisak nedelje
 #
@@ -346,7 +346,7 @@ giant_comp_replied_to_utisak_size <- max(r_net_comp_utisak$csize)
 giant_comp_replied_to_utisak_index <- which(r_net_comp_utisak$csize == giant_comp_replied_to_utisak_size)
 # izdvajamo najvecu komponentu iz grafa replied_to_net_utisak
 giant_comp_replied_to_utisak <- induced_subgraph(replied_to_net_utisak,
-vids = V(replied_to_net_utisak)[r_net_comp_utisak$membership==giant_comp_replied_to_utisak_index])
+                                                 vids = V(replied_to_net_utisak)[r_net_comp_utisak$membership==giant_comp_replied_to_utisak_index])
 summary(giant_comp_replied_to_utisak)
 is_connected(giant_comp_replied_to_utisak, mode = 'weak')
 # koristimo attribute friends_cnt i followers_cnt i njihove boje i velicine
@@ -354,19 +354,19 @@ gc_colors_replied_to_utisak <- attr_based_color_gradient(log1p(V(giant_comp_repl
 gc_size_replied_to_utisak <- log1p(V(giant_comp_replied_to_utisak)$followers_cnt)
 set.seed(2501)
 plot(giant_comp_replied_to_utisak,
-layout = layout_with_dh(giant_comp_replied_to_utisak),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = gc_size_replied_to_utisak,
-vertex.color = gc_colors_replied_to_utisak,
-main = "Najveca komponenta u mrezi replied_to za Utisak nedelje")
+     layout = layout_with_dh(giant_comp_replied_to_utisak),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = gc_size_replied_to_utisak,
+     vertex.color = gc_colors_replied_to_utisak,
+     main = "Najveca komponenta u mrezi replied_to za Utisak nedelje")
 # vizualizacija grafa
 nodes_df_replied_to_utisak <- data.frame(id=V(giant_comp_replied_to_utisak)$name, stringsAsFactors = FALSE)
 head(nodes_df_replied_to_utisak)
 edges_df_replied_to_utisak <- data.frame(as_edgelist(giant_comp_replied_to_utisak), stringsAsFactors = FALSE)
 colnames(edges_df_replied_to_utisak) <- c('from', 'to')
 visNetwork(nodes = nodes_df_replied_to_utisak, edges = edges_df_replied_to_utisak,
-main="Najveca komponenta replied_to mreze za Utisak nedelje")
+           main="Najveca komponenta replied_to mreze za Utisak nedelje")
 #
 nodes_df_replied_to_utisak$color <- gc_colors_replied_to_utisak
 nodes_df_replied_to_utisak$size <- 12 + gc_size_replied_to_utisak
@@ -378,9 +378,9 @@ edges_df_replied_to_utisak$smooth <- TRUE
 edges_df_replied_to_utisak$arrows <- 'to'
 head(edges_df_replied_to_utisak)
 visNetwork(nodes = nodes_df_replied_to_utisak,
-edges = edges_df_replied_to_utisak,
-main="Najveca komponenta replied_to mreze za Utisak nedelje ",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+           edges = edges_df_replied_to_utisak,
+           main="Najveca komponenta replied_to mreze za Utisak nedelje ",
+           footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 nodes_df_replied_to_utisak$shadow <- FALSE
 nodes_df_replied_to_utisak$title <- nodes_df_replied_to_utisak$id
 nodes_df_replied_to_utisak$borderWidth <- 1
@@ -390,8 +390,8 @@ nodes_df_replied_to_utisak$color.border <- "blue"
 nodes_df_replied_to_utisak$color.highlight.background <- "orange"
 nodes_df_replied_to_utisak$color.highlight.border <- "red"
 visnet <- visNetwork(nodes = nodes_df_replied_to_utisak, edges = edges_df_replied_to_utisak,
-main="Najveca komponenta replied_to mreze za Utisak nedelje",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+                     main="Najveca komponenta replied_to mreze za Utisak nedelje",
+                     footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 visnet
 
 
@@ -410,8 +410,8 @@ library(dplyr)
 # rad sa grafovima
 # biramo samo relevantne kolone
 hittvit10tweets_users <- hittvit_10_tweets %>%
-select(screen_name, reply_to_screen_name, mentions_screen_name) %>%
-rename(sender=screen_name, replied_to=reply_to_screen_name, mentioned=mentions_screen_name)
+  select(screen_name, reply_to_screen_name, mentions_screen_name) %>%
+  rename(sender=screen_name, replied_to=reply_to_screen_name, mentioned=mentions_screen_name)
 glimpse(hittvit10tweets_users)
 # Neke vrednosti 'replied_to' i 'mentioned' ne postoje, proveravamo koliko ih je takvih:
 length(which(is.na(hittvit10tweets_users$replied_to)==TRUE))
@@ -419,7 +419,7 @@ length(which(is.na(hittvit10tweets_users$mentioned)))
 # Uzimamo samo tvitove u kojima je neko odgovorio drugom korisniku
 # ili ga spomenuo
 hittvit10tweets_users <- hittvit10tweets_users %>%
-filter( is.na(replied_to)==FALSE | is.na(mentioned)==FALSE )
+  filter( is.na(replied_to)==FALSE | is.na(mentioned)==FALSE )
 View(hittvit10tweets_users)
 nrow(hittvit10tweets_users)
 # radimo operaciju unnest za kolonu 'mentioned'
@@ -429,28 +429,28 @@ View(hittvit10tweets_users)
 # Pretvaramo hittvit10tweets_users u dataframe zbog daljeg rada sa grafovima
 # Pravimo 2 edge liste: jednu za relaciju 'reply_to' drugu za relaciju 'mentioned'
 replied_to_edgelist_hittvit <- hittvit10tweets_users %>%
-select(-mentioned) %>%              # bez kolone 'mentioned'
-filter(complete.cases(.)) %>%       # iskljucimo redove koji nemaju vrednost, tj. Imaju vrednost NA
-group_by(sender, replied_to) %>%    # redovi se spajaju po vrednostima sender I replied_to
-summarise(weight = n()) %>%         # kolika je velicina svake grupe (veza izmedju kolona sender I replied_to)
-ungroup()
+  select(-mentioned) %>%              # bez kolone 'mentioned'
+  filter(complete.cases(.)) %>%       # iskljucimo redove koji nemaju vrednost, tj. Imaju vrednost NA
+  group_by(sender, replied_to) %>%    # redovi se spajaju po vrednostima sender I replied_to
+  summarise(weight = n()) %>%         # kolika je velicina svake grupe (veza izmedju kolona sender I replied_to)
+  ungroup()
 head(replied_to_edgelist_hittvit, n=10)
 # izmedju kojih parova cvorova je komunikacija najveca (sortiramo po velicini grupe tj. weight):
 replied_to_edgelist_hittvit %>%
-arrange(desc(weight)) %>%
-head(n=10)
+  arrange(desc(weight)) %>%
+  head(n=10)
 # isto radimo za kolonu 'mentioned'
 mentioned_edgelist_hittvit <- hittvit10tweets_users %>%
-select(-replied_to) %>%
-filter(complete.cases(.)) %>%
-group_by(sender, mentioned) %>%
-summarise(weight = n()) %>%
-ungroup()
+  select(-replied_to) %>%
+  filter(complete.cases(.)) %>%
+  group_by(sender, mentioned) %>%
+  summarise(weight = n()) %>%
+  ungroup()
 head(mentioned_edgelist_hittvit, n=10)
 # gde se najcesce vidi ova veza (sortiranje po vrednosti weight):
 mentioned_edgelist_hittvit %>%
-arrange(desc(weight)) %>%
-head(n=10)
+  arrange(desc(weight)) %>%
+  head(n=10)
 # Cvorovi u mrezama su jedinstvene vrednosti za korisnike
 # jedinstvene vrednosti u replied_to edgelist
 reply_to_unique_hittvit <- union(replied_to_edgelist_hittvit$sender, replied_to_edgelist_hittvit$replied_to)
@@ -465,11 +465,11 @@ summary(mentioned_edgelist_hittvit$weight)
 # Neke smo vec dobili (hittvit_10_tweets)
 glimpse(hittvit_10_tweets)
 all_senders_hittvit <- union(mentioned_edgelist_hittvit$sender,
-replied_to_edgelist_hittvit$sender)
+                             replied_to_edgelist_hittvit$sender)
 senders_data_hittvit <- hittvit_10_tweets %>%
-filter(screen_name %in% all_senders_hittvit) %>%
-users_data() %>%                          # funkcija paketa rtweet za uzimanje podataka iz dataset-a
-distinct(user_id, .keep_all = TRUE)
+  filter(screen_name %in% all_senders_hittvit) %>%
+  users_data() %>%                          # funkcija paketa rtweet za uzimanje podataka iz dataset-a
+  distinct(user_id, .keep_all = TRUE)
 glimpse(senders_data_hittvit)
 # Skupljamo podatke za “alters”, tj. korisnike koji su mentioned / replied_to
 # za koje alters nemamo podatke
@@ -487,13 +487,13 @@ alters_data_hittvit <- users_data(alters_data_hittvit)
 missing_alter_hittvit <- setdiff(no_data_alters_hittvit, alters_data_hittvit$screen_name)
 length(missing_alter_hittvit)
 mentioned_edgelist_hittvit %>%
-filter(!mentioned %in% missing_alter_hittvit) %>%
-rename(ego=sender, alter=mentioned, mention_tie=weight) %>%
-saveRDS(file = "data/mentions_edgelist_#hittvit.RData")
+  filter(!mentioned %in% missing_alter_hittvit) %>%
+  rename(ego=sender, alter=mentioned, mention_tie=weight) %>%
+  saveRDS(file = "data/mentions_edgelist_#hittvit.RData")
 replied_to_edgelist_hittvit %>%
-filter(!replied_to %in% missing_alter_hittvit) %>%
-rename(ego=sender, alter=replied_to, reply_to_tie=weight) %>%
-saveRDS(file = "data/replied_to_edgelist_hittvit_#hittvit.RData")
+  filter(!replied_to %in% missing_alter_hittvit) %>%
+  rename(ego=sender, alter=replied_to, reply_to_tie=weight) %>%
+  saveRDS(file = "data/replied_to_edgelist_hittvit_#hittvit.RData")
 saveRDS(senders_data_hittvit, file = "data/ego_data_#hittvit.RData")
 saveRDS(alters_data_hittvit, file = "data/alter_data_#hittvit.RData")
 ##
@@ -508,10 +508,10 @@ summary(mention_net_hittvit)
 # proveravamo gustinu mreze
 edge_density(mention_net_hittvit)
 plot(mention_net_hittvit,
-layout = layout_with_lgl(mention_net_hittvit),
-edge.arrow.size=0.3,
-vertex.size = 5,
-vertex.label = NA)
+     layout = layout_with_lgl(mention_net_hittvit),
+     edge.arrow.size=0.3,
+     vertex.size = 5,
+     vertex.label = NA)
 # dodajemo neke nove vrednosti cvorovima
 # pravimo funkciju get_user_attrs() koja prima:
 # 1) podatke o korisnicima dobijene funkcijom paketa rtweet users_data(),
@@ -519,9 +519,9 @@ vertex.label = NA)
 # funkcija vraca data frame od 4 promenljive (kolone):
 # screen_name, followers_count, friends_count, and statuses_count
 get_user_attrs <- function(twitter_user_data, users_screen_names) {
-twitter_user_data %>%
-filter(screen_name %in% users_screen_names) %>%
-select(screen_name, followers_count, friends_count, statuses_count)
+  twitter_user_data %>%
+    filter(screen_name %in% users_screen_names) %>%
+    select(screen_name, followers_count, friends_count, statuses_count)
 }
 # ucitamo podatke o senders: potrebno za dodavanje atributa cvorovima koji su izvori
 senders_data_hittvit <- readRDS("data/ego_data_#hittvit.RData")
@@ -533,8 +533,8 @@ alter_attrs_mentioned_hittvit <- get_user_attrs(alters_data_hittvit, V(mention_n
 glimpse(alter_attrs_mentioned_hittvit)
 # dodeljujemo attribute onima koji su u mrezi 'mentioned'
 node_attrs_mentioned_hittvit <- rbind(ego_attrs_mentioned_hittvit, alter_attrs_mentioned_hittvit) %>% # spoj dataframe-ova
-distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
-arrange(screen_name) # sortiranje prema korisnickom imenu
+  distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
+  arrange(screen_name) # sortiranje prema korisnickom imenu
 head(node_attrs_mentioned_hittvit, n=10)
 summary(node_attrs_mentioned_hittvit[,-1])
 # attribute koji su vektori postavimo najpre na 0
@@ -542,10 +542,10 @@ V(mention_net_hittvit)$followers_cnt <- rep(0, vcount(mention_net_hittvit))
 V(mention_net_hittvit)$friends_cnt <- rep(0, vcount(mention_net_hittvit))
 V(mention_net_hittvit)$posts_cnt <- rep(0, vcount(mention_net_hittvit))
 for (i in 1:vcount(mention_net_hittvit)) {
-index <- which(node_attrs_mentioned_hittvit$screen_name == V(mention_net_hittvit)$name[i])
-V(mention_net_hittvit)$followers_cnt[i] <- node_attrs_mentioned_hittvit$followers_count[index]
-V(mention_net_hittvit)$friends_cnt[i] <- node_attrs_mentioned_hittvit$friends_count[index]
-V(mention_net_hittvit)$posts_cnt[i] <- node_attrs_mentioned_hittvit$statuses_count[index]
+  index <- which(node_attrs_mentioned_hittvit$screen_name == V(mention_net_hittvit)$name[i])
+  V(mention_net_hittvit)$followers_cnt[i] <- node_attrs_mentioned_hittvit$followers_count[index]
+  V(mention_net_hittvit)$friends_cnt[i] <- node_attrs_mentioned_hittvit$friends_count[index]
+  V(mention_net_hittvit)$posts_cnt[i] <- node_attrs_mentioned_hittvit$statuses_count[index]
 }
 summary(mention_net_hittvit)
 summary(V(mention_net_hittvit)$followers_cnt)
@@ -553,17 +553,17 @@ summary(V(mention_net_hittvit)$followers_cnt)
 # ona pravi cvorove na grafu tako da su velicinom proprcionalni broju pratilaca korisnika
 source('SNA_custom_functions.R')
 friends_for_color_mentioned_hittvit <- attr_based_color_gradient(log1p(V(mention_net_hittvit)$friends_cnt),
-c('gold','steelblue3'))
+                                                                 c('gold','steelblue3'))
 # vektor na osnovu broja pratilaca za racunanje velicine cvora
 followers_for_size_mentioned_hittvit <- log1p(V(mention_net_hittvit)$followers_cnt)
 # plot
 plot(mention_net_hittvit,
-layout = layout_with_lgl(mention_net_hittvit),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = followers_for_size_mentioned_hittvit,
-vertex.color = friends_for_color_mentioned_hittvit,
-main = "Mreza HT na tviteru: boja cvora oznacava broj prijatelja, a velicina broj pratilaca")
+     layout = layout_with_lgl(mention_net_hittvit),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = followers_for_size_mentioned_hittvit,
+     vertex.color = friends_for_color_mentioned_hittvit,
+     main = "Mreza HT na tviteru: boja cvora oznacava broj prijatelja, a velicina broj pratilaca")
 library(visNetwork)
 # VISNETWORK: vizualizacija mreze mentioned za Hit Tvit
 m_net_comp_hittvit <- components(mention_net_hittvit, mode = 'weak')
@@ -573,7 +573,7 @@ giant_comp_mentioned_hittvit_size <- max(m_net_comp_hittvit$csize)
 giant_comp_mentioned_hittvit_index <- which(m_net_comp_hittvit$csize == giant_comp_mentioned_hittvit_size)
 # izdvajamo najvecu komponentu iz grafa mention_net_hittvit
 giant_comp_mentioned_hittvit <- induced_subgraph(mention_net_hittvit,
-vids = V(mention_net_hittvit)[m_net_comp_hittvit$membership==giant_comp_mentioned_hittvit_index])
+                                                 vids = V(mention_net_hittvit)[m_net_comp_hittvit$membership==giant_comp_mentioned_hittvit_index])
 summary(giant_comp_mentioned_hittvit)
 is_connected(giant_comp_mentioned_hittvit, mode = 'weak')
 # koristimo attribute friends_cnt i followers_cnt i njihove boje i velicine
@@ -581,19 +581,19 @@ gc_colors_mentioned_hittvit <- attr_based_color_gradient(log1p(V(giant_comp_ment
 gc_size_mentioned_hittvit <- log1p(V(giant_comp_mentioned_hittvit)$followers_cnt)
 set.seed(2501)
 plot(giant_comp_mentioned_hittvit,
-layout = layout_with_dh(giant_comp_mentioned_hittvit),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = gc_size_mentioned_hittvit,
-vertex.color = gc_colors_mentioned_hittvit,
-main = "Najveca komponenta u mrezi mentioned za Hit Tvit")
+     layout = layout_with_dh(giant_comp_mentioned_hittvit),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = gc_size_mentioned_hittvit,
+     vertex.color = gc_colors_mentioned_hittvit,
+     main = "Najveca komponenta u mrezi mentioned za Hit Tvit")
 # vizualizacija grafa
 nodes_df_mentioned_hittvit <- data.frame(id=V(giant_comp_mentioned_hittvit)$name, stringsAsFactors = FALSE)
 head(nodes_df_mentioned_hittvit)
 edges_df_mentioned_hittvit <- data.frame(as_edgelist(giant_comp_mentioned_hittvit), stringsAsFactors = FALSE)
 colnames(edges_df_mentioned_hittvit) <- c('from', 'to')
 visNetwork(nodes = nodes_df_mentioned_hittvit, edges = edges_df_mentioned_hittvit,
-main="Najveca komponenta mentioned mreze za Hit Tvit")
+           main="Najveca komponenta mentioned mreze za Hit Tvit")
 #
 nodes_df_mentioned_hittvit$color <- gc_colors_mentioned_hittvit
 nodes_df_mentioned_hittvit$size <- 12 + gc_size_mentioned_hittvit
@@ -605,9 +605,9 @@ edges_df_mentioned_hittvit$smooth <- TRUE
 edges_df_mentioned_hittvit$arrows <- 'to'
 head(edges_df_mentioned_hittvit)
 visNetwork(nodes = nodes_df_mentioned_hittvit,
-edges = edges_df_mentioned_hittvit,
-main="Najveca komponenta mentioned mreze za Hit Tvit",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+           edges = edges_df_mentioned_hittvit,
+           main="Najveca komponenta mentioned mreze za Hit Tvit",
+           footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 nodes_df_mentioned_hittvit$shadow <- FALSE
 nodes_df_mentioned_hittvit$title <- nodes_df_mentioned_hittvit$id
 nodes_df_mentioned_hittvit$borderWidth <- 1.5
@@ -617,8 +617,8 @@ nodes_df_mentioned_hittvit$color.border <- "black"
 nodes_df_mentioned_hittvit$color.highlight.background <- "orange"
 nodes_df_mentioned_hittvit$color.highlight.border <- "darkred"
 visnet <- visNetwork(nodes = nodes_df_mentioned_hittvit, edges = edges_df_mentioned_hittvit,
-main="Najveca komponenta mentioned mreze za Hit Tvit",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+                     main="Najveca komponenta mentioned mreze za Hit Tvit",
+                     footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 visnet
 #
 # MREZE KORISNIKA na osnovu relacije replied_to
@@ -632,10 +632,10 @@ summary(replied_to_net_hittvit)
 # proveravamo gustinu mreze
 edge_density(replied_to_net_hittvit)
 plot(replied_to_net_hittvit,
-layout = layout_with_lgl(replied_to_net_hittvit),
-edge.arrow.size=0.3,
-vertex.size = 5,
-vertex.label = NA)
+     layout = layout_with_lgl(replied_to_net_hittvit),
+     edge.arrow.size=0.3,
+     vertex.size = 5,
+     vertex.label = NA)
 # dodajemo neke nove vrednosti cvorovima
 # koristimo prethodno napravljenu funkciju get_user_attrs() koja prima:
 # 1) podatke o korisnicima dobijene funkcijom paketa rtweet users_data(),
@@ -652,8 +652,8 @@ alter_attrs_replied_to_hittvit <- get_user_attrs(alters_data_hittvit, V(replied_
 glimpse(alter_attrs_replied_to_hittvit)
 # dodeljujemo attribute onima koji su u mrezi 'replied_to_net'
 node_attrs_replied_to_hittvit <- rbind(ego_attrs_replied_to_hittvit, alter_attrs_replied_to_hittvit) %>% # spoj dataframe-ova
-distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
-arrange(screen_name) # sortiranje prema korisnickom imenu
+  distinct(screen_name, .keep_all = TRUE) %>% # uzimamo samo redove koji nemaju duplicate tj. jedinstveni su
+  arrange(screen_name) # sortiranje prema korisnickom imenu
 head(node_attrs_replied_to_hittvit, n=10)
 summary(node_attrs_replied_to_hittvit[,-1])
 # attribute koji su vektori postavimo najpre na 0
@@ -661,10 +661,10 @@ V(replied_to_net_hittvit)$followers_cnt <- rep(0, vcount(replied_to_net_hittvit)
 V(replied_to_net_hittvit)$friends_cnt <- rep(0, vcount(replied_to_net_hittvit))
 V(replied_to_net_hittvit)$posts_cnt <- rep(0, vcount(replied_to_net_hittvit))
 for (i in 1:vcount(replied_to_net_hittvit)) {
-index <- which(node_attrs_replied_to_hittvit$screen_name == V(replied_to_net_hittvit)$name[i])
-V(replied_to_net_hittvit)$followers_cnt[i] <- node_attrs_replied_to_hittvit$followers_count[index]
-V(replied_to_net_hittvit)$friends_cnt[i] <- node_attrs_replied_to_hittvit$friends_count[index]
-V(replied_to_net_hittvit)$posts_cnt[i] <- node_attrs_replied_to_hittvit$statuses_count[index]
+  index <- which(node_attrs_replied_to_hittvit$screen_name == V(replied_to_net_hittvit)$name[i])
+  V(replied_to_net_hittvit)$followers_cnt[i] <- node_attrs_replied_to_hittvit$followers_count[index]
+  V(replied_to_net_hittvit)$friends_cnt[i] <- node_attrs_replied_to_hittvit$friends_count[index]
+  V(replied_to_net_hittvit)$posts_cnt[i] <- node_attrs_replied_to_hittvit$statuses_count[index]
 }
 summary(replied_to_net_hittvit)
 summary(V(replied_to_net_hittvit)$followers_cnt)
@@ -672,17 +672,17 @@ summary(V(replied_to_net_hittvit)$followers_cnt)
 # ona pravi cvorove na grafu tako da su velicinom proprcionalni broju pratilaca korisnika
 source('SNA_custom_functions.R')
 friends_for_color_replied_to_hittvit <- attr_based_color_gradient(log1p(V(replied_to_net_hittvit)$friends_cnt),
-c('white','steelblue2'))
+                                                                  c('white','steelblue2'))
 # vektor na osnovu broja pratilaca za racunanje velicine cvora
 followers_for_size_replied_to_hittvit <- log1p(V(replied_to_net_hittvit)$followers_cnt)
 # plot
 plot(replied_to_net_hittvit,
-layout = layout_with_lgl(replied_to_net_hittvit),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = followers_for_size_replied_to_hittvit,
-vertex.color = friends_for_color_replied_to_hittvit,
-main = "Mreza HT na tviteru prema odnosu replied_to: \nboja cvora oznacava broj prijatelja, a velicina broj pratilaca")
+     layout = layout_with_lgl(replied_to_net_hittvit),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = followers_for_size_replied_to_hittvit,
+     vertex.color = friends_for_color_replied_to_hittvit,
+     main = "Mreza HT na tviteru prema odnosu replied_to: \nboja cvora oznacava broj prijatelja, a velicina broj pratilaca")
 # VISNETWORK: vizualizacija mreze replied_to za Hit Tvit
 library(visNetwork)
 r_net_comp_hittvit <- components(replied_to_net_hittvit, mode = 'weak')
@@ -692,7 +692,7 @@ giant_comp_replied_to_hittvit_size <- max(r_net_comp_hittvit$csize)
 giant_comp_replied_to_hittvit_index <- which(r_net_comp_hittvit$csize == giant_comp_replied_to_hittvit_size)
 # izdvajamo najvecu komponentu iz grafa replied_to_net_hittvit
 giant_comp_replied_to_hittvit <- induced_subgraph(replied_to_net_hittvit,
-vids = V(replied_to_net_hittvit)[r_net_comp_hittvit$membership==giant_comp_replied_to_hittvit_index])
+                                                  vids = V(replied_to_net_hittvit)[r_net_comp_hittvit$membership==giant_comp_replied_to_hittvit_index])
 summary(giant_comp_replied_to_hittvit)
 is_connected(giant_comp_replied_to_hittvit, mode = 'weak')
 # koristimo attribute friends_cnt i followers_cnt i njihove boje i velicine
@@ -700,19 +700,19 @@ gc_colors_replied_to_hittvit <- attr_based_color_gradient(log1p(V(giant_comp_rep
 gc_size_replied_to_hittvit <- log1p(V(giant_comp_replied_to_hittvit)$followers_cnt)
 set.seed(2501)
 plot(giant_comp_replied_to_hittvit,
-layout = layout_with_dh(giant_comp_replied_to_hittvit),
-edge.arrow.size=0.3,
-vertex.label = NA,
-vertex.size = gc_size_replied_to_hittvit,
-vertex.color = gc_colors_replied_to_hittvit,
-main = "Najveca komponenta u mrezi replied_to za Hit Tvit")
+     layout = layout_with_dh(giant_comp_replied_to_hittvit),
+     edge.arrow.size=0.3,
+     vertex.label = NA,
+     vertex.size = gc_size_replied_to_hittvit,
+     vertex.color = gc_colors_replied_to_hittvit,
+     main = "Najveca komponenta u mrezi replied_to za Hit Tvit")
 # vizualizacija grafa
 nodes_df_replied_to_hittvit <- data.frame(id=V(giant_comp_replied_to_hittvit)$name, stringsAsFactors = FALSE)
 head(nodes_df_replied_to_hittvit)
 edges_df_replied_to_hittvit <- data.frame(as_edgelist(giant_comp_replied_to_hittvit), stringsAsFactors = FALSE)
 colnames(edges_df_replied_to_hittvit) <- c('from', 'to')
 visNetwork(nodes = nodes_df_replied_to_hittvit, edges = edges_df_replied_to_hittvit,
-main="Najveca komponenta replied_to mreze za Hit Tvit")
+           main="Najveca komponenta replied_to mreze za Hit Tvit")
 #
 nodes_df_replied_to_hittvit$color <- gc_colors_replied_to_hittvit
 nodes_df_replied_to_hittvit$size <- 12 + gc_size_replied_to_hittvit
@@ -724,9 +724,9 @@ edges_df_replied_to_hittvit$smooth <- TRUE
 edges_df_replied_to_hittvit$arrows <- 'to'
 head(edges_df_replied_to_hittvit)
 visNetwork(nodes = nodes_df_replied_to_hittvit,
-edges = edges_df_replied_to_hittvit,
-main="Najveca komponenta replied_to mreze za Hit Tvit",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+           edges = edges_df_replied_to_hittvit,
+           main="Najveca komponenta replied_to mreze za Hit Tvit",
+           footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 nodes_df_replied_to_hittvit$shadow <- FALSE
 nodes_df_replied_to_hittvit$title <- nodes_df_replied_to_hittvit$id
 nodes_df_replied_to_hittvit$borderWidth <- 1
@@ -736,6 +736,6 @@ nodes_df_replied_to_hittvit$color.border <- "blue"
 nodes_df_replied_to_hittvit$color.highlight.background <- "orange"
 nodes_df_replied_to_hittvit$color.highlight.border <- "red"
 visnet <- visNetwork(nodes = nodes_df_replied_to_hittvit, edges = edges_df_replied_to_hittvit,
-main="Najveca komponenta replied_to mreze za Hit Tvit",
-footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
+                     main="Najveca komponenta replied_to mreze za Hit Tvit",
+                     footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 visnet
