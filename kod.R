@@ -745,3 +745,168 @@ edge_density(replied_to_net_utisak_20_09, loops = FALSE)
 #[1] 0.01744186
 edge_density(replied_to_net_utisak_27_09, loops = FALSE)
 #[1] 0.01605759
+
+# Racunamo in degree i out degree za svaki cvor u mrezi UN20 po relaciji mentioned
+deg_full_in_mention_utisak_20_09 <- degree(mention_net_utisak_20_09, mode="in") 
+deg_full_in_mention_utisak_20_09
+table(deg_full_in_mention_utisak_20_09)
+
+deg_full_out_mention_utisak_20_09 <- degree(mention_net_utisak_20_09, mode="out") 
+deg_full_out_mention_utisak_20_09
+table(deg_full_out_mention_utisak_20_09)
+
+# vizualizacija dobijenih vrednosti
+# 1. napravimo data frame
+deg_full_df_mention_utisak_20_09 <- data.frame(node_id=as.integer(V(mention_net_utisak_20_09)$name), 
+                          in_degree=deg_full_in_mention_utisak_20_09,
+                          out_degree=deg_full_out_mention_utisak_20_09)
+head(deg_full_df_mention_utisak_20_09)
+
+# 2. transformacija dataframe-a zarad rada sa
+# funkcijom gather() iz tidyr paketa
+deg_full_df_long_mention_utisak_20_09 <- gather(data = deg_full_df_mention_utisak_20_09, 
+                           key = 'degree_type', 
+                           value = 'degree_value', 
+                           in_degree:out_degree,
+                           factor_key = TRUE)
+head(deg_full_df_long_mention_utisak_20_09)
+tail(deg_full_df_long_mention_utisak_20_09)
+
+# 3. plot 
+ggplot(data = deg_full_df_long_mention_utisak_20_09, 
+       mapping = aes(x=node_id, y=degree_value, fill=degree_type)) +
+  geom_col(position = 'dodge') +
+  labs(x = "Node ID", y = "In- and Out-Degrees") +
+  scale_x_continuous(breaks = seq(0,21,1)) +
+  theme_bw()
+
+# 4. distribucija degree vrednosti
+ggplot(data = deg_full_df_long_mention_utisak_20_09, 
+        mapping = aes(x = degree_value, fill = degree_type)) +
+     geom_density(alpha = 0.6) +
+     scale_x_continuous(breaks = seq(0,20,1)) +
+     theme_bw()
+
+# Racunamo in degree i out degree za svaki cvor u mrezi UN27 po relaciji mentioned
+deg_full_in_mention_utisak_27_09 <- degree(mention_net_utisak_27_09, mode="in") 
+deg_full_in_mention_utisak_27_09
+table(deg_full_in_mention_utisak_27_09)
+
+deg_full_out_mention_utisak_27_09 <- degree(mention_net_utisak_27_09, mode="out") 
+deg_full_out_mention_utisak_27_09
+table(deg_full_out_mention_utisak_27_09)
+
+# vizualizacija dobijenih vrednosti
+# 1. napravimo data frame
+deg_full_df_mention_utisak_27_09 <- data.frame(node_id=as.integer(V(mention_net_utisak_27_09)$name), 
+                          in_degree=deg_full_in_mention_utisak_27_09,
+                          out_degree=deg_full_out_mention_utisak_27_09)
+head(deg_full_df_mention_utisak_27_09)
+
+# 2. transformacija dataframe-a zarad rada sa
+# funkcijom gather() iz tidyr paketa
+deg_full_df_long_mention_utisak_27_09 <- gather(data = deg_full_df_mention_utisak_27_09, 
+                           key = 'degree_type', 
+                           value = 'degree_value', 
+                           in_degree:out_degree,
+                           factor_key = TRUE)
+head(deg_full_df_long_mention_utisak_27_09)
+tail(deg_full_df_long_mention_utisak_27_09)
+
+# 3. plot 
+ggplot(data = deg_full_df_long_mention_utisak_27_09, 
+       mapping = aes(x=node_id, y=degree_value, fill=degree_type)) +
+  geom_col(position = 'dodge') +
+  labs(x = "Node ID", y = "In- and Out-Degrees") +
+  scale_x_continuous(breaks = seq(0,21,1)) +
+  theme_bw()
+
+# 4. distribucija degree vrednosti
+ggplot(data = deg_full_df_long_mention_utisak_27_09, 
+        mapping = aes(x = degree_value, fill = degree_type)) +
+     geom_density(alpha = 0.6) +
+     scale_x_continuous(breaks = seq(0,20,1)) +
+     theme_bw()
+
+# Racunamo in degree i out degree za svaki cvor u mrezi UN20 po relaciji replied_to
+deg_full_in_replied_to_utisak_20_09 <- degree(replied_to_net_utisak_20_09, mode="in") 
+deg_full_in_replied_to_utisak_20_09
+table(deg_full_in_replied_to_utisak_20_09)
+
+deg_full_out_replied_to_utisak_20_09 <- degree(replied_to_net_utisak_20_09, mode="out") 
+deg_full_out_replied_to_utisak_20_09
+table(deg_full_out_replied_to_utisak_20_09)
+
+# vizualizacija dobijenih vrednosti
+# 1. napravimo data frame
+deg_full_df_replied_to_utisak_20_09 <- data.frame(node_id=as.integer(V(replied_to_net_utisak_20_09)$name), 
+                          in_degree=deg_full_in_replied_to_utisak_20_09,
+                          out_degree=deg_full_out_replied_to_utisak_20_09)
+head(deg_full_df_replied_to_utisak_20_09)
+
+# 2. transformacija dataframe-a zarad rada sa
+# funkcijom gather() iz tidyr paketa
+deg_full_df_long_replied_to_utisak_20_09 <- gather(data = deg_full_df_replied_to_utisak_20_09, 
+                           key = 'degree_type', 
+                           value = 'degree_value', 
+                           in_degree:out_degree,
+                           factor_key = TRUE)
+head(deg_full_df_long_replied_to_utisak_20_09)
+tail(deg_full_df_long_replied_to_utisak_20_09)
+
+# 3. plot 
+ggplot(data = deg_full_df_long_replied_to_utisak_20_09, 
+       mapping = aes(x=node_id, y=degree_value, fill=degree_type)) +
+  geom_col(position = 'dodge') +
+  labs(x = "Node ID", y = "In- and Out-Degrees") +
+  scale_x_continuous(breaks = seq(0,21,1)) +
+  theme_bw()
+
+# 4. distribucija degree vrednosti
+ggplot(data = deg_full_df_long_replied_to_utisak_20_09, 
+        mapping = aes(x = degree_value, fill = degree_type)) +
+     geom_density(alpha = 0.6) +
+     scale_x_continuous(breaks = seq(0,20,1)) +
+     theme_bw()
+
+# Racunamo in degree i out degree za svaki cvor u mrezi UN27 po relaciji replied_to
+deg_full_in_replied_to_utisak_27_09 <- degree(replied_to_net_utisak_27_09, mode="in") 
+deg_full_in_replied_to_utisak_27_09
+table(deg_full_in_replied_to_utisak_27_09)
+
+deg_full_out_replied_to_utisak_27_09 <- degree(replied_to_net_utisak_27_09, mode="out") 
+deg_full_out_replied_to_utisak_27_09
+table(deg_full_out_replied_to_utisak_27_09)
+
+# vizualizacija dobijenih vrednosti
+# 1. napravimo data frame
+deg_full_df_replied_to_utisak_27_09 <- data.frame(node_id=as.integer(V(replied_to_net_utisak_27_09)$name), 
+                          in_degree=deg_full_in_replied_to_utisak_27_09,
+                          out_degree=deg_full_out_replied_to_utisak_27_09)
+head(deg_full_df_replied_to_utisak_27_09)
+
+# 2. transformacija dataframe-a zarad rada sa
+# funkcijom gather() iz tidyr paketa
+deg_full_df_long_replied_to_utisak_27_09 <- gather(data = deg_full_df_replied_to_utisak_27_09, 
+                           key = 'degree_type', 
+                           value = 'degree_value', 
+                           in_degree:out_degree,
+                           factor_key = TRUE)
+head(deg_full_df_long_replied_to_utisak_27_09)
+tail(deg_full_df_long_replied_to_utisak_27_09)
+
+# 3. plot 
+ggplot(data = deg_full_df_long_replied_to_utisak_27_09, 
+       mapping = aes(x=node_id, y=degree_value, fill=degree_type)) +
+  geom_col(position = 'dodge') +
+  labs(x = "Node ID", y = "In- and Out-Degrees") +
+  scale_x_continuous(breaks = seq(0,21,1)) +
+  theme_bw()
+
+# 4. distribucija degree vrednosti
+ggplot(data = deg_full_df_long_replied_to_utisak_27_09, 
+        mapping = aes(x = degree_value, fill = degree_type)) +
+     geom_density(alpha = 0.6) +
+     scale_x_continuous(breaks = seq(0,20,1)) +
+     theme_bw()
+
