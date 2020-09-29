@@ -910,3 +910,39 @@ ggplot(data = deg_full_df_long_replied_to_utisak_27_09,
      scale_x_continuous(breaks = seq(0,20,1)) +
      theme_bw()
 
+# min i max vrednosti za in i out degrees
+min(deg_full_in_mention_utisak_20_09)
+#0
+max(deg_full_in_mention_utisak_20_09)
+#37
+min(deg_full_out_mention_utisak_20_09)
+#0
+max(deg_full_out_mention_utisak_20_09)
+#11
+
+min(deg_full_in_mention_utisak_27_09)
+#0
+max(deg_full_in_mention_utisak_27_09)
+#20
+min(deg_full_out_mention_utisak_27_09)
+#0
+max(deg_full_out_mention_utisak_27_09)
+#19
+
+min(deg_full_in_replied_to_utisak_20_09)
+#0
+max(deg_full_in_replied_to_utisak_20_09)
+#6
+min(deg_full_out_replied_to_utisak_20_09)
+#0
+max(deg_full_out_replied_to_utisak_20_09)
+#3
+
+min(deg_full_in_replied_to_utisak_27_09)
+#0
+max(deg_full_in_replied_to_utisak_27_09)
+#6
+min(deg_full_out_replied_to_utisak_27_09)
+#0
+max(deg_full_out_replied_to_utisak_27_09)
+#3
