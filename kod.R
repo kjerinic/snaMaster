@@ -714,3 +714,34 @@ visnet <- visNetwork(nodes = nodes_df_replied_to_utisak_27_09, edges = edges_df_
                      main="Najveca komponenta replied_to mreze za Utisak nedelje za 27.09.2020.",
                      footer = "Boja oznacava broj prijatelja, a velicina cvora broj pratilaca")
 visnet
+
+
+# broj cvorova i ivica
+V(mention_net_utisak_20_09)
+E(mention_net_utisak_20_09)
+V(mention_net_utisak_27_09)
+E(mention_net_utisak_27_09)
+V(replied_to_net_utisak_20_09)
+E(replied_to_net_utisak_20_09)
+V(replied_to_net_utisak_27_09)
+E(replied_to_net_utisak_27_09)
+
+# gustina mreze kada racunamo i relaciju cvora samog sa sobom
+edge_density(mention_net_utisak_20_09)
+#[1] 0.01038422
+edge_density(mention_net_utisak_27_09)
+#[1] 0.009630459
+edge_density(replied_to_net_utisak_20_09)
+#[1] 0.01744186
+edge_density(replied_to_net_utisak_27_09)
+#[1] 0.01605759
+
+# gustina mreze kada NE racunamo relaciju cvora samog sa sobom
+edge_density(mention_net_utisak_20_09,loops = FALSE)
+#[1] 0.01038422
+edge_density(mention_net_utisak_27_09,loops = FALSE)
+#[1] 0.009630459
+edge_density(replied_to_net_utisak_20_09, loops = FALSE)
+#[1] 0.01744186
+edge_density(replied_to_net_utisak_27_09, loops = FALSE)
+#[1] 0.01605759
